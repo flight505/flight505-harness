@@ -1,0 +1,47 @@
+{
+  "schema": "harness/v1",
+  "workflow_id": "build-and-optimize",
+  "phase_id": "optimize",
+  "plugin": "harness-optimize",
+  "run_id": "bao-002",
+  "status": "running",
+  "started_at": "2026-03-30T14:30:00Z",
+  "updated_at": "2026-03-30T14:47:00Z",
+  "elapsed_seconds": 1020,
+  "progress": {
+    "current": 12,
+    "total": 20,
+    "unit": "experiments"
+  },
+  "metric": {
+    "name": "p99_latency_ms",
+    "direction": "lower",
+    "baseline": 142,
+    "current": 98,
+    "best": 89,
+    "history": [
+      { "experiment": 1, "value": 142, "status": "baseline", "description": "initial measurement" },
+      { "experiment": 2, "value": 135, "status": "kept", "description": "reduced connection pool from 20 to 8" },
+      { "experiment": 3, "value": 148, "status": "reverted", "description": "async batching of DB queries" },
+      { "experiment": 4, "value": 128, "status": "kept", "description": "added response caching with 30s TTL" },
+      { "experiment": 5, "value": 131, "status": "reverted", "description": "pre-warm cache on startup" },
+      { "experiment": 6, "value": 112, "status": "kept", "description": "replaced JSON.parse with fast-json" },
+      { "experiment": 7, "value": 118, "status": "reverted", "description": "moved validation to middleware" },
+      { "experiment": 8, "value": 105, "status": "kept", "description": "parallel user + permission lookups" },
+      { "experiment": 9, "value": 89, "status": "kept", "description": "added DB query result caching" },
+      { "experiment": 10, "value": 94, "status": "reverted", "description": "lazy-load auth module" },
+      { "experiment": 11, "value": 91, "status": "reverted", "description": "reduce JSON response fields" },
+      { "experiment": 12, "value": 98, "status": "reverted", "description": "HTTP/2 server push for static" }
+    ]
+  },
+  "output": {},
+  "error": null,
+  "config": {
+    "artifact": "src/api/handler.ts",
+    "metric": "p99_latency_ms",
+    "direction": "lower",
+    "run_command": "npm run benchmark",
+    "time_budget": "2m",
+    "max_experiments": 20
+  }
+}

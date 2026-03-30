@@ -1,0 +1,42 @@
+{
+  "schema": "harness/v1",
+  "workflow_id": "build-and-optimize",
+  "phase_id": "build",
+  "plugin": "harness-build",
+  "run_id": "bao-001",
+  "status": "completed",
+  "started_at": "2026-03-30T14:00:00Z",
+  "updated_at": "2026-03-30T14:28:00Z",
+  "elapsed_seconds": 1680,
+  "progress": {
+    "current": 3,
+    "total": 3,
+    "unit": "stories"
+  },
+  "output": {
+    "branch": "feat/user-api",
+    "stories_completed": 3,
+    "stories_total": 3,
+    "commits": ["a1b2c3d", "e4f5a6b", "c7d8e9f"],
+    "files_changed": [
+      "src/api/handler.ts",
+      "src/api/routes.ts",
+      "src/auth/middleware.ts",
+      "src/models/user.ts",
+      "tests/api.test.ts"
+    ],
+    "review_verdict": "approve",
+    "code_review_verdict": "approve"
+  },
+  "error": null,
+  "config": {
+    "branch": "feat/user-api",
+    "max_teammates": 3,
+    "code_review": true,
+    "quality": {
+      "test": "npm test",
+      "build": "npm run build",
+      "typecheck": "tsc --noEmit"
+    }
+  }
+}

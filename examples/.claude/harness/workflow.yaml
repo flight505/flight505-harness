@@ -1,0 +1,72 @@
+name: build-and-optimize
+description: "Build user management API, then optimize the hot path"
+
+defaults:
+  quality:
+    test: "npm test"
+    build: "npm run build"
+    typecheck: "tsc --noEmit"
+
+phases:
+  - id: build
+    plugin: harness-build
+    type: agent-teams
+    config:
+      branch: "feat/user-api"
+      max_teammates: 3
+      code_review: true
+      tasks:
+        - id: "US-001"
+          title: "Set up Express project with TypeScript"
+          description: "As a developer, I want the Express project scaffolded with TypeScript so I can start building endpoints."
+          criteria:
+            - "package.json has express and typescript dependencies"
+            - "src/ directory structure exists"
+            - "tsconfig.json configured"
+            - "npm run build succeeds"
+
+        - id: "US-002"
+          title: "Add user CRUD endpoints"
+          description: "As a developer, I want REST endpoints for creating, reading, updating, and deleting users."
+          criteria:
+            - "POST /api/users creates a user"
+            - "GET /api/users/:id returns a user"
+            - "PUT /api/users/:id updates a user"
+            - "DELETE /api/users/:id deletes a user"
+            - "All endpoints have input validation"
+
+        - id: "US-003"
+          title: "Add authentication middleware"
+          description: "As a developer, I want JWT authentication so endpoints are protected."
+          criteria:
+            - "POST /api/auth/login returns a JWT"
+            - "Protected endpoints require valid JWT"
+            - "Invalid tokens return 401"
+
+  - id: review
+    plugin: harness-build
+    type: subagent
+    agent: reviewer
+    depends_on: [build]
+
+  - id: optimize
+    plugin: harness-optimize
+    type: loop
+    depends_on: [review]
+    config:
+      artifact: "src/api/handler.ts"
+      metric: "p99_latency_ms"
+      direction: lower
+      run_command: "npm run benchmark"
+      time_budget: "2m"
+      max_experiments: 20
+
+  - id: research
+    plugin: harness-research
+    type: subagent
+    depends_on: [optimize]
+    condition: "phases.optimize.output.improvement_pct > 10"
+    config:
+      query: "Why did {phases.optimize.output.best_description} improve API latency?"
+      sources: ["arxiv", "semantic-scholar", "perplexity"]
+      max_papers: 5

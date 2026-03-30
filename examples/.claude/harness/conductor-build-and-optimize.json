@@ -1,0 +1,27 @@
+{
+  "schema": "harness/v1",
+  "workflow_id": "build-and-optimize",
+  "phase_id": "conductor",
+  "plugin": "conductor",
+  "run_id": "conductor-build-and-optimize",
+  "status": "running",
+  "started_at": "2026-03-30T14:00:00Z",
+  "updated_at": "2026-03-30T14:47:00Z",
+  "elapsed_seconds": 2820,
+  "progress": {
+    "current": 2,
+    "total": 4,
+    "unit": "phases"
+  },
+  "output": {
+    "phases": {
+      "build": { "status": "completed" },
+      "review": { "status": "completed" }
+    }
+  },
+  "error": null,
+  "config": {
+    "workflow_path": ".claude/harness/workflow.yaml",
+    "workflow_name": "build-and-optimize"
+  }
+}

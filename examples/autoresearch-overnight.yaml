@@ -1,0 +1,17 @@
+name: autoresearch-overnight
+description: "Overnight autoresearch run on RTX 5070 Ti"
+
+phases:
+  - id: optimize
+    plugin: harness-optimize
+    type: loop
+    config:
+      artifact: "train.py"
+      metric: "val_bpb"
+      direction: lower
+      run_command: "uv run train.py"
+      time_budget: "5m"
+      max_experiments: 100
+      target: server
+      ssh_host: "jesper@192.168.1.100"
+      cwd: "/home/jesper/autoresearch-blackwell"
