@@ -1,0 +1,93 @@
+name: Validate Plugin Manifests
+
+on:
+  pull_request:
+    paths:
+      - '**/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - 'schema/**'
+  push:
+    branches: [main]
+    paths:
+      - '**/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - 'schema/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Validate marketplace.json
+        run: |
+          echo "Validating marketplace.json structure..."
+          MARKETPLACE=".claude-plugin/marketplace.json"
+
+          # Check required fields
+          jq -e '.name' "$MARKETPLACE" > /dev/null || { echo "Missing name"; exit 1; }
+          jq -e '.version' "$MARKETPLACE" > /dev/null || { echo "Missing version"; exit 1; }
+          jq -e '.plugins' "$MARKETPLACE" > /dev/null || { echo "Missing plugins"; exit 1; }
+
+          echo "marketplace.json structure is valid"
+
+      - name: Validate plugin.json files
+        run: |
+          ERRORS=0
+
+          for submodule in $(jq -r '.plugins[].name' .claude-plugin/marketplace.json); do
+            PLUGIN_JSON="${submodule}/.claude-plugin/plugin.json"
+
+            if [ ! -f "${PLUGIN_JSON}" ]; then
+              echo "WARN: ${PLUGIN_JSON} not found (submodule may not be initialized)"
+              continue
+            fi
+
+            # Check required fields
+            for field in name version description; do
+              if ! jq -e ".${field}" "${PLUGIN_JSON}" > /dev/null 2>&1; then
+                echo "ERROR: ${PLUGIN_JSON} missing required field: ${field}"
+                ERRORS=$((ERRORS + 1))
+              fi
+            done
+
+            # Verify name matches directory
+            PLUGIN_NAME=$(jq -r '.name' "${PLUGIN_JSON}")
+            if [ "$PLUGIN_NAME" != "$submodule" ]; then
+              echo "ERROR: ${PLUGIN_JSON} name '${PLUGIN_NAME}' does not match directory '${submodule}'"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "${ERRORS} validation error(s) found"
+            exit 1
+          fi
+
+          echo "All plugin manifests are valid"
+
+      - name: Check version sync
+        run: |
+          ERRORS=0
+
+          for submodule in $(jq -r '.plugins[].name' .claude-plugin/marketplace.json); do
+            PLUGIN_JSON="${submodule}/.claude-plugin/plugin.json"
+
+            if [ ! -f "${PLUGIN_JSON}" ]; then
+              continue
+            fi
+
+            MARKETPLACE_VERSION=$(jq -r --arg name "$submodule" '.plugins[] | select(.name == $name) | .version' .claude-plugin/marketplace.json)
+            PLUGIN_VERSION=$(jq -r '.version' "${PLUGIN_JSON}")
+
+            if [ "$MARKETPLACE_VERSION" != "$PLUGIN_VERSION" ]; then
+              echo "WARN: Version mismatch for ${submodule}: marketplace=${MARKETPLACE_VERSION}, plugin=${PLUGIN_VERSION}"
+              echo "  (This is expected if plugin was recently updated — webhook will sync)"
+            fi
+          done
+
+          echo "Version sync check complete"

@@ -1,0 +1,27 @@
+{
+  "name": "conductor",
+  "version": "0.1.0",
+  "description": "Workflow orchestrator — reads workflow.yaml, sequences phases, manages Agent Teams, handles resume. The central coordinator for all harness plugins.",
+  "author": {
+    "name": "Jesper Vang",
+    "email": "jesper_vang@me.com",
+    "url": "https://github.com/flight505"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/flight505/conductor",
+  "homepage": "https://github.com/flight505/conductor",
+  "keywords": [
+    "claude-cli",
+    "orchestrator",
+    "workflow",
+    "pipeline",
+    "agent-teams",
+    "harness"
+  ],
+  "commands": [
+    "./commands/run.md"
+  ],
+  "skills": [
+    "./skills/compose"
+  ]
+}

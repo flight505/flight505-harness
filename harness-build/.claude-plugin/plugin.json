@@ -1,0 +1,27 @@
+{
+  "name": "harness-build",
+  "version": "0.1.0",
+  "description": "Headless parallel feature builder — Agent Teams implementation with TDD enforcement, two-stage review, and quality gates. No wizard, no interaction.",
+  "author": {
+    "name": "Jesper Vang",
+    "email": "jesper_vang@me.com",
+    "url": "https://github.com/flight505"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/flight505/harness-build",
+  "homepage": "https://github.com/flight505/harness-build",
+  "keywords": [
+    "claude-cli",
+    "build",
+    "agent-teams",
+    "tdd",
+    "code-review",
+    "parallel",
+    "headless"
+  ],
+  "agents": [
+    "./agents/implementer.md",
+    "./agents/reviewer.md",
+    "./agents/code-reviewer.md"
+  ]
+}

@@ -1,0 +1,156 @@
+name: Auto-update Plugin Submodules
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: [plugin-updated]
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log trigger information
+        run: |
+          echo "========================================="
+          echo "Harness Marketplace Update Triggered"
+          echo "========================================="
+          echo "Trigger: ${{ github.event_name }}"
+
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "Plugin: ${{ github.event.client_payload.plugin }}"
+            echo "Version: ${{ github.event.client_payload.version }}"
+            echo "Previous: ${{ github.event.client_payload.previous_version }}"
+            echo "Commit: ${{ github.event.client_payload.commit }}"
+            echo "Timestamp: ${{ github.event.client_payload.timestamp }}"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Type: Daily cron (midnight UTC)"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Type: Manual trigger"
+          fi
+          echo "========================================="
+
+      - name: Checkout marketplace repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update all submodules to latest
+        id: update
+        run: |
+          echo "Updating submodules..."
+          git submodule update --remote --recursive
+
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No submodule updates available"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Submodule updates found"
+          fi
+
+      - name: Extract version information
+        if: steps.update.outputs.has_changes == 'true'
+        id: versions
+        run: |
+          UPDATES=""
+
+          for submodule in $(jq -r '.plugins[].name' .claude-plugin/marketplace.json); do
+            if git diff --name-only | grep -q "^${submodule}$"; then
+              NEW_COMMIT=$(git diff ${submodule} | grep "^+Subproject commit" | awk '{print $3}')
+              OLD_COMMIT=$(git diff ${submodule} | grep "^-Subproject commit" | awk '{print $3}')
+
+              PLUGIN_JSON="${submodule}/.claude-plugin/plugin.json"
+
+              if [ -f "${PLUGIN_JSON}" ]; then
+                VERSION=$(jq -r '.version' "${PLUGIN_JSON}")
+                echo "Updated ${submodule} to version ${VERSION} (${NEW_COMMIT:0:7})"
+                UPDATES="${UPDATES}\n- ${submodule}: ${VERSION} (${OLD_COMMIT:0:7} -> ${NEW_COMMIT:0:7})"
+              else
+                echo "Updated ${submodule} (${NEW_COMMIT:0:7})"
+                UPDATES="${UPDATES}\n- ${submodule}: ${OLD_COMMIT:0:7} -> ${NEW_COMMIT:0:7}"
+              fi
+            fi
+          done
+
+          echo "updates<<EOF" >> $GITHUB_OUTPUT
+          echo -e "${UPDATES}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update marketplace.json versions
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          MARKETPLACE_JSON=".claude-plugin/marketplace.json"
+
+          for submodule in $(jq -r '.plugins[].name' .claude-plugin/marketplace.json); do
+            PLUGIN_JSON="${submodule}/.claude-plugin/plugin.json"
+
+            if [ -f "${PLUGIN_JSON}" ]; then
+              VERSION=$(jq -r '.version' "${PLUGIN_JSON}")
+              PLUGIN_NAME="$submodule"
+
+              jq --arg name "$PLUGIN_NAME" --arg version "$VERSION" \
+                '(.plugins[] | select(.name == $name) | .version) = $version' \
+                "${MARKETPLACE_JSON}" > "${MARKETPLACE_JSON}.tmp"
+
+              mv "${MARKETPLACE_JSON}.tmp" "${MARKETPLACE_JSON}"
+
+              echo "Updated ${PLUGIN_NAME} version to ${VERSION} in marketplace.json"
+            fi
+          done
+
+          CURRENT_VERSION=$(jq -r '.version' "${MARKETPLACE_JSON}")
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH=$((VERSION_PARTS[2] + 1))
+          NEW_MARKETPLACE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${PATCH}"
+
+          jq --arg version "$NEW_MARKETPLACE_VERSION" '.version = $version' \
+            "${MARKETPLACE_JSON}" > "${MARKETPLACE_JSON}.tmp"
+          mv "${MARKETPLACE_JSON}.tmp" "${MARKETPLACE_JSON}"
+
+          echo "Bumped marketplace version: ${CURRENT_VERSION} -> ${NEW_MARKETPLACE_VERSION}"
+          echo "new_marketplace_version=${NEW_MARKETPLACE_VERSION}" >> $GITHUB_ENV
+
+      - name: Commit and push changes
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          git add .
+
+          cat > commit_message.txt << EOF
+          chore: auto-update plugin submodules
+
+          Automated submodule updates:
+          ${{ steps.versions.outputs.updates }}
+
+          Marketplace version: ${{ env.new_marketplace_version }}
+          EOF
+
+          git commit -F commit_message.txt
+          rm -f commit_message.txt
+          git push origin main
+
+      - name: Summary
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          echo "Successfully updated plugins!"
+          echo "Updates applied:"
+          echo "${{ steps.versions.outputs.updates }}"
+          echo "Marketplace version: ${{ env.new_marketplace_version }}"
+
+      - name: No updates needed
+        if: steps.update.outputs.has_changes == 'false'
+        run: |
+          echo "All plugins are already up to date"

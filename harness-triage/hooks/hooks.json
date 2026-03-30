@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/validate-fix.sh",
+            "timeout": 120,
+            "statusMessage": "Validating fix..."
+          }
+        ]
+      }
+    ]
+  }
+}

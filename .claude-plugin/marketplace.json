@@ -1,0 +1,109 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "flight505-harness",
+  "version": "0.1.0",
+  "description": "Composable harness engineering for Claude Code — conductor orchestration, headless build/optimize/research/triage plugins, and a monitoring dashboard. Self-contained, no cross-marketplace dependencies.",
+  "owner": {
+    "name": "Jesper Vang",
+    "email": "contact@flight505.dev",
+    "url": "https://github.com/flight505"
+  },
+  "plugins": [
+    {
+      "name": "conductor",
+      "description": "Workflow orchestrator — reads workflow.yaml, sequences phases, manages Agent Teams, handles resume. The central coordinator for all harness plugins.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jesper Vang",
+        "url": "https://github.com/flight505"
+      },
+      "source": "./conductor",
+      "category": "workflows",
+      "keywords": [
+        "orchestrator",
+        "workflow",
+        "pipeline",
+        "conductor",
+        "agent-teams",
+        "harness"
+      ]
+    },
+    {
+      "name": "harness-build",
+      "description": "Headless parallel feature builder — Agent Teams implementation with TDD enforcement, two-stage review, and quality gates. No wizard, no interaction.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jesper Vang",
+        "url": "https://github.com/flight505"
+      },
+      "source": "./harness-build",
+      "category": "workflows",
+      "keywords": [
+        "build",
+        "agent-teams",
+        "tdd",
+        "code-review",
+        "parallel",
+        "headless"
+      ]
+    },
+    {
+      "name": "harness-optimize",
+      "description": "Headless keep/revert optimization loop — any artifact + metric, local or remote via SSH. Absorbs autoresearch capabilities including hardware detection and RunPod support.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jesper Vang",
+        "url": "https://github.com/flight505"
+      },
+      "source": "./harness-optimize",
+      "category": "research",
+      "keywords": [
+        "optimization",
+        "autoresearch",
+        "keep-revert",
+        "experiment-loop",
+        "mlx",
+        "cuda",
+        "headless"
+      ]
+    },
+    {
+      "name": "harness-research",
+      "description": "Headless literature search and synthesis — arXiv, Semantic Scholar, HF Papers, Perplexity. Structured input/output, composable with other phases.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jesper Vang",
+        "url": "https://github.com/flight505"
+      },
+      "source": "./harness-research",
+      "category": "research",
+      "keywords": [
+        "research",
+        "arxiv",
+        "semantic-scholar",
+        "literature-review",
+        "synthesis",
+        "headless"
+      ]
+    },
+    {
+      "name": "harness-triage",
+      "description": "Issue diagnosis and auto-fix — reads issues/errors, searches codebase for root cause, generates fix with regression tests, verifies fix.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jesper Vang",
+        "url": "https://github.com/flight505"
+      },
+      "source": "./harness-triage",
+      "category": "workflows",
+      "keywords": [
+        "triage",
+        "diagnosis",
+        "auto-fix",
+        "issues",
+        "bug-fix",
+        "headless"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+.cache/
+
+# Claude Code local settings (ignore everything except hooks)
+.claude/*
+!.claude/hooks/
+
+# Node (dashboard)
+node_modules/
+.next/
+.env*.local
+
+# Harness runtime state (generated, not committed)
+# Users may want to commit workflow.yaml but not state files
+# .claude/harness/*.json is runtime state — don't commit

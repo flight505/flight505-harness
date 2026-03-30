@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "_comment": "Inject current workflow progress into session context. Re-injects on resume/clear/compact so progress awareness survives compaction.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd' inject-status"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "_comment": "Inject configured hardware targets into session context. Re-injects on resume/clear/compact so hardware awareness survives compaction.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd' inject-targets"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "_comment": "After each Bash call during optimization, validate that metric was parseable if this was an experiment run.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd' validate-experiment"
+          }
+        ]
+      }
+    ]
+  }
+}

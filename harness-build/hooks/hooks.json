@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "TaskCreated": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/validate-task-name.sh",
+            "timeout": 5,
+            "statusMessage": "Validating task naming..."
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/validate-task.sh",
+            "timeout": 120,
+            "statusMessage": "Validating task completion..."
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/check-idle.sh",
+            "timeout": 5,
+            "statusMessage": "Checking teammate status..."
+          }
+        ]
+      }
+    ]
+  }
+}

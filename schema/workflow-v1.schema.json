@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/flight505/flight505-harness/schema/workflow-v1.schema.json",
+  "title": "Harness Workflow v1",
+  "description": "Defines a pipeline of phases for the conductor to execute. Written as YAML, validated against this JSON Schema.",
+  "type": "object",
+  "required": ["name", "phases"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Workflow identifier. Used as workflow_id in state files. Lowercase, hyphens only."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of what this workflow does"
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Global config inherited by all phases unless overridden",
+      "properties": {
+        "quality": {
+          "type": "object",
+          "description": "Quality gate commands run after each task/experiment",
+          "properties": {
+            "test": {
+              "type": "string",
+              "description": "Test command (e.g., npm test)"
+            },
+            "build": {
+              "type": "string",
+              "description": "Build command (e.g., npm run build)"
+            },
+            "typecheck": {
+              "type": "string",
+              "description": "Typecheck command (e.g., tsc --noEmit)"
+            },
+            "lint": {
+              "type": "string",
+              "description": "Lint command (e.g., eslint .)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/phase"
+      },
+      "description": "Ordered list of phases to execute"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "required": ["id", "plugin", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "Phase identifier. Used as phase_id in state files."
+        },
+        "plugin": {
+          "type": "string",
+          "enum": [
+            "harness-build",
+            "harness-optimize",
+            "harness-research",
+            "harness-triage"
+          ],
+          "description": "Which harness plugin executes this phase"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["agent-teams", "loop", "subagent", "inline"],
+          "description": "Execution model for this phase"
+        },
+        "agent": {
+          "type": "string",
+          "description": "For subagent phases: which agent to spawn (e.g., reviewer, code-reviewer, searcher)"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Phase IDs that must complete before this phase starts"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Expression that must evaluate to true for this phase to run. References previous phase output: phases.<id>.output.<field> <op> <value>"
+        },
+        "config": {
+          "type": "object",
+          "description": "Plugin-specific configuration for this phase",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "plugin": { "const": "harness-build" },
+              "type": { "const": "agent-teams" }
+            },
+            "required": ["plugin", "type"]
+          },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["branch"],
+                "properties": {
+                  "branch": {
+                    "type": "string",
+                    "description": "Git branch for feature work"
+                  },
+                  "max_teammates": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "default": 3,
+                    "description": "Maximum number of parallel implementer teammates"
+                  },
+                  "code_review": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to run code review after spec review"
+                  },
+                  "tasks_from": {
+                    "type": "string",
+                    "description": "Path to a markdown or JSON file containing task definitions"
+                  },
+                  "tasks": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/task"
+                    },
+                    "description": "Inline task definitions"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plugin": { "const": "harness-optimize" },
+              "type": { "const": "loop" }
+            },
+            "required": ["plugin", "type"]
+          },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["artifact", "metric", "direction", "run_command"],
+                "properties": {
+                  "target": {
+                    "type": "string",
+                    "enum": ["local", "server", "runpod"],
+                    "default": "local",
+                    "description": "Where to run experiments"
+                  },
+                  "ssh_host": {
+                    "type": "string",
+                    "description": "SSH host for server target (e.g., user@host)"
+                  },
+                  "cwd": {
+                    "type": "string",
+                    "description": "Working directory (local path or remote path for server target)"
+                  },
+                  "artifact": {
+                    "type": "string",
+                    "description": "File to optimize (e.g., train.py, src/api/handler.ts)"
+                  },
+                  "metric": {
+                    "type": "string",
+                    "description": "Metric name to extract from run output"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": ["lower", "higher"],
+                    "description": "Whether lower or higher metric values are better"
+                  },
+                  "run_command": {
+                    "type": "string",
+                    "description": "Command to run after each edit (e.g., uv run train.py, npm run benchmark)"
+                  },
+                  "time_budget": {
+                    "type": "string",
+                    "pattern": "^\\d+[smh]$",
+                    "description": "Max time per experiment (e.g., 3m, 300s, 1h)"
+                  },
+                  "max_experiments": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 20,
+                    "description": "Maximum number of experiments before stopping"
+                  },
+                  "convergence_window": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "default": 5,
+                    "description": "Stop after N experiments with no improvement"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plugin": { "const": "harness-research" }
+            },
+            "required": ["plugin"]
+          },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Research question. Supports {phases.<id>.output.<field>} interpolation."
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["arxiv", "semantic-scholar", "hf-papers", "perplexity"]
+                    },
+                    "default": ["arxiv", "semantic-scholar", "hf-papers", "perplexity"],
+                    "description": "Which search sources to use"
+                  },
+                  "max_papers": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 10,
+                    "description": "Maximum number of papers to include in findings"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plugin": { "const": "harness-triage" }
+            },
+            "required": ["plugin"]
+          },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "properties": {
+                  "issue_url": {
+                    "type": "string",
+                    "description": "GitHub issue URL to diagnose"
+                  },
+                  "error_log": {
+                    "type": "string",
+                    "description": "Error message or log to diagnose (alternative to issue_url)"
+                  },
+                  "fix_branch_prefix": {
+                    "type": "string",
+                    "default": "fix/",
+                    "description": "Branch name prefix for fix branches"
+                  },
+                  "create_pr": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to create a PR for the fix"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "title", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Task identifier (e.g., US-001)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short task title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Full task description (user story format preferred)"
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Acceptance criteria for this task"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

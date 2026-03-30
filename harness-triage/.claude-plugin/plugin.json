@@ -1,0 +1,27 @@
+{
+  "name": "harness-triage",
+  "version": "0.1.0",
+  "description": "Issue diagnosis and auto-fix — reads issues/errors, searches codebase for root cause, generates fix with regression tests, verifies fix.",
+  "author": {
+    "name": "Jesper Vang",
+    "email": "jesper_vang@me.com",
+    "url": "https://github.com/flight505"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/flight505/harness-triage",
+  "homepage": "https://github.com/flight505/harness-triage",
+  "keywords": [
+    "claude-cli",
+    "triage",
+    "diagnosis",
+    "auto-fix",
+    "issues",
+    "bug-fix",
+    "headless"
+  ],
+  "agents": [
+    "./agents/diagnostician.md",
+    "./agents/fixer.md",
+    "./agents/verifier.md"
+  ]
+}

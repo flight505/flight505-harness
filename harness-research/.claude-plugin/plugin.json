@@ -1,0 +1,27 @@
+{
+  "name": "harness-research",
+  "version": "0.1.0",
+  "description": "Headless literature search and synthesis — arXiv, Semantic Scholar, HF Papers, Perplexity. Structured input/output, composable with other phases.",
+  "author": {
+    "name": "Jesper Vang",
+    "email": "jesper_vang@me.com",
+    "url": "https://github.com/flight505"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/flight505/harness-research",
+  "homepage": "https://github.com/flight505/harness-research",
+  "keywords": [
+    "claude-cli",
+    "research",
+    "arxiv",
+    "semantic-scholar",
+    "literature-review",
+    "synthesis",
+    "headless"
+  ],
+  "agents": [
+    "./agents/searcher.md",
+    "./agents/synthesizer.md",
+    "./agents/method-analyst.md"
+  ]
+}

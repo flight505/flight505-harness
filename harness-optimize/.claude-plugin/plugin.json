@@ -1,0 +1,30 @@
+{
+  "name": "harness-optimize",
+  "version": "0.1.0",
+  "description": "Headless keep/revert optimization loop — any artifact + metric, local or remote via SSH. Absorbs autoresearch capabilities including hardware detection and RunPod support.",
+  "author": {
+    "name": "Jesper Vang",
+    "email": "jesper_vang@me.com",
+    "url": "https://github.com/flight505"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/flight505/harness-optimize",
+  "homepage": "https://github.com/flight505/harness-optimize",
+  "keywords": [
+    "claude-cli",
+    "optimization",
+    "autoresearch",
+    "keep-revert",
+    "experiment-loop",
+    "mlx",
+    "cuda",
+    "headless"
+  ],
+  "agents": [
+    "./agents/optimizer.md",
+    "./agents/advisor.md"
+  ],
+  "skills": [
+    "./skills/setup"
+  ]
+}
