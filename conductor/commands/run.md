@@ -32,6 +32,23 @@ Parse the YAML. Verify:
 
 If validation fails, report all errors and stop.
 
+## 2b. Launch Dashboard
+
+Before executing any phases, start the monitoring dashboard in the background so the user can follow progress in real time.
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/../harness-dashboard/scripts/launch-dashboard.sh" "$(pwd)/.claude/harness"
+```
+
+This:
+- Starts the Next.js dashboard on `http://localhost:3000` (or next available port)
+- Points it at the current workflow's state directory
+- Runs in the background — does not block phase execution
+- Skips if the dashboard is already running
+- Opens the browser automatically
+
+If the dashboard fails to start (missing dependencies, port conflict), log a warning and continue — the dashboard is monitoring-only, not execution-critical.
+
 ## 3. Check for Resume State
 
 ```bash
