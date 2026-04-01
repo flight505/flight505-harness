@@ -15,7 +15,6 @@ tools:
 disallowedTools:
   - Agent
 model: inherit
-permissionMode: bypassPermissions
 maxTurns: 150
 memory: project
 effort: high

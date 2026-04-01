@@ -51,6 +51,19 @@ HARNESS_STATE_DIR="$HARNESS_STATE_DIR" \
 DASH_PID=$!
 echo "$DASH_PID" > "$PID_FILE"
 
+# Start heartbeat daemon (updates elapsed_seconds in running state files)
+HEARTBEAT_PID_FILE="/tmp/harness-heartbeat.pid"
+if [ -f "$HEARTBEAT_PID_FILE" ]; then
+    OLD_HB=$(cat "$HEARTBEAT_PID_FILE")
+    kill "$OLD_HB" 2>/dev/null || true
+    rm -f "$HEARTBEAT_PID_FILE"
+fi
+
+nohup node "$DASHBOARD_DIR/scripts/heartbeat.mjs" "$HARNESS_STATE_DIR" > /tmp/harness-heartbeat.log 2>&1 &
+HB_PID=$!
+echo "$HB_PID" > "$HEARTBEAT_PID_FILE"
+echo "[heartbeat] Started (PID $HB_PID)"
+
 # Wait briefly for startup
 sleep 3
 

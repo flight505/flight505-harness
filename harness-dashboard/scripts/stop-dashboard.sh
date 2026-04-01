@@ -20,3 +20,14 @@ else
 fi
 
 rm -f "$PID_FILE"
+
+# Also stop heartbeat
+HEARTBEAT_PID_FILE="/tmp/harness-heartbeat.pid"
+if [ -f "$HEARTBEAT_PID_FILE" ]; then
+    HB_PID=$(cat "$HEARTBEAT_PID_FILE")
+    if kill -0 "$HB_PID" 2>/dev/null; then
+        kill "$HB_PID" 2>/dev/null
+        echo "[heartbeat] Stopped (PID $HB_PID)"
+    fi
+    rm -f "$HEARTBEAT_PID_FILE"
+fi

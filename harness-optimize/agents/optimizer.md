@@ -86,7 +86,9 @@ git checkout -b harness/optimize-<run_id>
 
 ### 3. Establish baseline
 
-Run the command once without edits to get the baseline metric:
+**IMPORTANT: Before running ANY long command, write interim state so the dashboard shows progress.**
+
+Write state with `status: "running"` and progress showing experiment 1 is executing. Then run:
 
 **Local:**
 ```bash
@@ -104,30 +106,40 @@ Parse the metric from output. Look for patterns like:
 - `<metric_name> <value>`
 - JSON output with the metric as a key
 
-Record as experiment 1 with status `baseline`. Update state file.
+Record as experiment 1 with status `baseline`. Update state file immediately.
 
 ### 4. Loop
 
 For each experiment (2 through max_experiments):
 
-1. **Read the artifact** — understand the current code
-2. **Propose a change** — based on your understanding of the domain:
-   - For ML training: architecture changes, hyperparameter tuning, optimization tricks
+1. **Read the artifact** — understand the current code. Only read it once at the start; for subsequent experiments, you already know the code — just read relevant sections if needed.
+2. **Propose a change** — be decisive, not exhaustive. Pick ONE hypothesis and test it:
+   - For ML training: hyperparameter tuning, architecture changes, optimization tricks
    - For API performance: caching, query optimization, connection pooling, batching
    - For build speed: parallelism, caching, dependency trimming
-   - For any domain: apply known optimization patterns relevant to the metric
-3. **Apply the edit** — modify the artifact file
+3. **Apply the edit** — use targeted `sed` commands for small changes instead of rewriting the entire file
 4. **Commit** — `git add <artifact> && git commit -m "experiment <N>: <brief description>"`
-5. **Run** — execute the run command with timeout
-6. **Parse metric** — extract the metric value from output
-7. **Decide:**
+5. **Write interim state** — BEFORE running the command, update the state file:
+   - Set `progress.current` to the current experiment number
+   - Add a placeholder entry to `metric.history` with `"status": "running"` and the experiment description
+   - This ensures the dashboard shows what's happening RIGHT NOW
+6. **Run** — execute the run command with timeout
+7. **Parse metric** — extract the metric value from output
+8. **Decide:**
    - If metric improved (lower for "lower", higher for "higher"): **KEEP** — update best, log as `kept`
    - If metric worsened or unchanged: **REVERT** — `git revert HEAD --no-edit`, log as `reverted`
    - If run crashed or metric not found: **REVERT** — log as `reverted` with note
-8. **Update state file** — add to history, update current/best, increment progress
-9. **Check stopping conditions:**
-   - `current >= max_experiments` → stop
-   - Last `convergence_window` experiments all reverted → stop (converged)
+9. **Update state file** — replace the placeholder history entry with final result, update current/best
+10. **Check stopping conditions:**
+    - `current >= max_experiments` → stop
+    - Last `convergence_window` experiments all reverted → stop (converged)
+
+### Speed Guidelines
+
+- **Read the artifact ONCE** at the start. Don't re-read the full file every experiment.
+- **Use `sed` or targeted edits** instead of rewriting the entire file via SSH cat heredoc.
+- **Be decisive** — spend seconds choosing what to change, not minutes analyzing.
+- **For SSH targets**, use persistent connections if possible: `ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh-%r@%h:%p -o ControlPersist=600`
 
 ### 5. Finalize
 
