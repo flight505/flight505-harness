@@ -21,7 +21,7 @@
   },
   "error": null,
   "config": {
-    "workflow_path": ".claude/harness/workflow.yaml",
+    "workflow_path": ".harness/workflow.yaml",
     "workflow_name": "build-and-optimize"
   }
 }

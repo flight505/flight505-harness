@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/flight505/flight505-harness/schema/state-v1.schema.json",
   "title": "Harness State Contract v1",
-  "description": "Shared state envelope written by every harness plugin to .claude/harness/",
+  "description": "Shared state envelope written by every harness plugin to .harness/",
   "type": "object",
   "required": [
     "schema",

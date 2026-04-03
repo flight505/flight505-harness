@@ -19,7 +19,7 @@ diagnostician → fixer → verifier
 
 ## State Output
 
-Writes to `.claude/harness/triage-{run_id}.json` following `schema/state-v1.schema.json`.
+Writes to `.harness/triage-{run_id}.json` following `schema/state-v1.schema.json`.
 
 Output includes: issue_url, diagnosis, fix_branch, pr_url, tests_added, tests_passing.
 

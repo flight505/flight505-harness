@@ -17,7 +17,7 @@ Self-contained — absorbs all autoresearch capabilities. No dependency on the s
 
 ## State Output
 
-Writes to `.claude/harness/optimize-{run_id}.json` following `schema/state-v1.schema.json`.
+Writes to `.harness/optimize-{run_id}.json` following `schema/state-v1.schema.json`.
 
 Updated after every experiment. Contains:
 - Progress (current/total experiments)

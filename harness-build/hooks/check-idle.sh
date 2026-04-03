@@ -6,12 +6,12 @@
 set -e
 
 # Check for active build state
-if ! ls .claude/harness/build-*.json >/dev/null 2>&1; then
+if ! ls .harness/build-*.json >/dev/null 2>&1; then
   exit 0
 fi
 
 # Read the latest build state to check progress
-LATEST_STATE=$(ls -t .claude/harness/build-*.json 2>/dev/null | head -1 || echo "")
+LATEST_STATE=$(ls -t .harness/build-*.json 2>/dev/null | head -1 || echo "")
 
 if [ -z "$LATEST_STATE" ]; then
   exit 0

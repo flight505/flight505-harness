@@ -10,7 +10,7 @@ Composable harness engineering for Claude Code. 5 plugins as git submodules, web
 
 - **Headless first** — no AskUserQuestion, no wizards. Config in, state out.
 - **Self-contained** — no cross-marketplace dependencies. Never needs flight505-plugins.
-- **Shared state contract** — every plugin writes JSON to `.claude/harness/` following `schema/state-v1.schema.json`
+- **Shared state contract** — every plugin writes JSON to `.harness/` following `schema/state-v1.schema.json`
 - **Single-session orchestration** — conductor runs as team lead in one Claude Code session
 - **Resume from state** — phases write checkpoints; sessions can crash and restart
 
@@ -52,7 +52,7 @@ The conductor reads `workflow.yaml` and runs phases sequentially:
 
 ## State Contract
 
-All plugins write to `.claude/harness/<plugin>-<run_id>.json` following `schema/state-v1.schema.json`.
+All plugins write to `.harness/<plugin>-<run_id>.json` following `schema/state-v1.schema.json`.
 
 **Status values:** `pending`, `running`, `completed`, `failed`, `skipped`, `cancelled`
 
@@ -62,7 +62,7 @@ All plugins write to `.claude/harness/<plugin>-<run_id>.json` following `schema/
 
 ## Workflow Format
 
-Workflows live at `.claude/harness/workflow.yaml`, validated against `schema/workflow-v1.schema.json`.
+Workflows live at `.harness/workflow.yaml`, validated against `schema/workflow-v1.schema.json`.
 
 **Conditions:** `phases.<id>.output.<field> <op> <value>`
 **Interpolation:** `{phases.<id>.output.<field>}` in config strings
@@ -109,7 +109,7 @@ Both marketplaces can be installed simultaneously. They don't conflict.
 |---|---|---|
 | **User** | Human at keyboard | Conductor agent or trigger |
 | **Interface** | Interactive wizard | JSON config, headless |
-| **State** | Plugin-specific (prd.json, results.tsv) | Shared contract (.claude/harness/) |
+| **State** | Plugin-specific (prd.json, results.tsv) | Shared contract (.harness/) |
 | **Resume** | Plugin-specific | Conductor handles all |
 
 ---
@@ -130,7 +130,7 @@ These are experiment targets for harness-optimize, not dependencies:
 
 - `hooks.json` is auto-discovered — adding `"hooks"` to plugin.json causes duplicate hooks error
 - Agent Teams cannot nest — only one `agent-teams` phase at a time
-- State files in `.claude/harness/` are runtime artifacts, not committed to git
+- State files in `.harness/` are runtime artifacts, not committed to git
 - `workflow.yaml` IS committed — it's the input definition
 - Plugins update on restart only, not mid-session
 
@@ -140,10 +140,10 @@ These are experiment targets for harness-optimize, not dependencies:
 
 ```bash
 # Run a workflow
-/conductor:run .claude/harness/workflow.yaml
+/conductor:run .harness/workflow.yaml
 
 # Validate schemas
-npx ajv validate -s schema/state-v1.schema.json -d .claude/harness/*.json
+npx ajv validate -s schema/state-v1.schema.json -d .harness/*.json
 
 # Sync submodules
 git submodule update --remote --merge

@@ -11,13 +11,13 @@ You are the conductor — the central orchestrator for harness workflows. You re
 ## 1. Load Workflow
 
 ```bash
-WORKFLOW_PATH="${1:-.claude/harness/workflow.yaml}"
+WORKFLOW_PATH="${1:-.harness/workflow.yaml}"
 cat "$WORKFLOW_PATH"
 ```
 
-If `$ARGUMENTS` provides a path, use it. Otherwise default to `.claude/harness/workflow.yaml`.
+If `$ARGUMENTS` provides a path, use it. Otherwise default to `.harness/workflow.yaml`.
 
-If the file doesn't exist, stop with: "No workflow found at `<path>`. Create one with `/conductor:compose` or place a workflow.yaml at `.claude/harness/workflow.yaml`."
+If the file doesn't exist, stop with: "No workflow found at `<path>`. Create one with `/conductor:compose` or place a workflow.yaml at `.harness/workflow.yaml`."
 
 ## 2. Validate Workflow
 
@@ -37,7 +37,7 @@ If validation fails, report all errors and stop.
 Before executing any phases, start the monitoring dashboard in the background so the user can follow progress in real time.
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/../harness-dashboard/scripts/launch-dashboard.sh" "$(pwd)/.claude/harness"
+bash "${CLAUDE_PLUGIN_ROOT}/../harness-dashboard/scripts/launch-dashboard.sh" "$(pwd)/.harness"
 ```
 
 This:
@@ -52,7 +52,7 @@ If the dashboard fails to start (missing dependencies, port conflict), log a war
 ## 3. Check for Resume State
 
 ```bash
-ls -la .claude/harness/conductor-*.json 2>/dev/null
+ls -la .harness/conductor-*.json 2>/dev/null
 ```
 
 If a conductor state file exists for this workflow:
@@ -67,10 +67,18 @@ If a conductor state file exists for this workflow:
 If no state file exists, this is a fresh run. Create the conductor state:
 
 ```bash
-mkdir -p .claude/harness
+mkdir -p .harness
 ```
 
-Write `.claude/harness/conductor-{workflow_name}.json`:
+If `.gitignore` exists but doesn't contain `.harness/`, append it:
+
+```bash
+if [ -f .gitignore ] && ! grep -q '^\.harness/' .gitignore; then
+  echo '.harness/' >> .gitignore
+fi
+```
+
+Write `.harness/conductor-{workflow_name}.json`:
 
 ```json
 {
@@ -131,7 +139,7 @@ Merge `defaults` from workflow into phase config (phase config takes precedence)
 This is for parallel feature building via harness-build.
 
 1. Generate a unique `run_id` for this phase
-2. Write initial phase state to `.claude/harness/build-{run_id}.json` with `status: "running"`
+2. Write initial phase state to `.harness/build-{run_id}.json` with `status: "running"`
 3. Read tasks from `config.tasks` (inline) or `config.tasks_from` (file path)
 4. Create a git branch: `git checkout -b <config.branch>`
 5. For each task, create a Claude Code Task via TaskCreate:
@@ -174,7 +182,7 @@ This is for optimization via harness-optimize.
    max_experiments, convergence_window, target, ssh_host, cwd,
    workflow_id, phase_id, run_id
    ```
-3. The optimizer agent runs autonomously and writes its own state to `.claude/harness/optimize-{run_id}.json`
+3. The optimizer agent runs autonomously and writes its own state to `.harness/optimize-{run_id}.json`
 4. Wait for the optimizer to finish (it will set status to `completed` or `failed`)
 5. Read the optimizer's final state to get output
 6. Copy output to the conductor's phase record
@@ -215,7 +223,7 @@ This is for simple tasks the conductor executes directly.
 ### 4f. Update conductor state
 
 After each phase completes (or fails/skips):
-1. Update `.claude/harness/conductor-{workflow_name}.json`:
+1. Update `.harness/conductor-{workflow_name}.json`:
    - Increment `progress.current`
    - Add phase result to `output.phases.<phase_id>`
    - Update `updated_at` and `elapsed_seconds`

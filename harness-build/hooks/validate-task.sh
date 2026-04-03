@@ -8,7 +8,7 @@ set -e
 INPUT=$(cat)
 TASK_SUBJECT=$(echo "$INPUT" | jq -r '.task_subject // empty')
 
-HARNESS_DIR=".claude/harness"
+HARNESS_DIR=".harness"
 
 # Find the most recent build state file for quality commands
 LATEST_STATE=$(ls -t "${HARNESS_DIR}"/build-*.json 2>/dev/null | head -1 || echo "")

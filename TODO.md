@@ -6,14 +6,14 @@ Issues and improvements from test round 1 (2026-03-31 — 2026-04-01).
 
 ## High Priority
 
-### 1. Move state directory from `.claude/harness/` to `.harness/`
+### ~~1. Move state directory from `.claude/harness/` to `.harness/`~~ DONE
 
 **Problem:** `.claude/` is a protected directory in `bypassPermissions` mode — writes always prompt for confirmation, even with `--dangerously-skip-permissions`. The exemptions (`.claude/commands`, `.claude/agents`, `.claude/skills`) are hardcoded and cannot be extended by plugins or user settings.
 
 **Impact:** Every state file write triggers a permission prompt, breaking headless operation. This is the #1 UX friction.
 
 **Fix:**
-- [ ] Change all state file paths from `.claude/harness/` to `.harness/`
+- [ ] Change all state file paths from `.harness/` to `.harness/`
 - [ ] Update `schema/state-v1.schema.json` docs
 - [ ] Update `schema/workflow-v1.schema.json` — workflow.yaml still lives at `.harness/workflow.yaml`
 - [ ] Update conductor `run.md` — all state paths
@@ -28,7 +28,7 @@ Issues and improvements from test round 1 (2026-03-31 — 2026-04-01).
 - [ ] Update `examples/` — mock state file paths
 - [ ] Conductor auto-adds `.harness/` to `.gitignore` if missing
 
-**Note:** Plugins cannot ship permission allow rules in `plugin.json` — there is no `permissions` field in the plugin schema. Users would have to manually add `Write(.claude/harness/*)` and `Edit(.claude/harness/*)` to their settings.json. Moving to `.harness/` eliminates this entirely.
+**Note:** Plugins cannot ship permission allow rules in `plugin.json` — there is no `permissions` field in the plugin schema. Users would have to manually add `Write(.harness/*)` and `Edit(.harness/*)` to their settings.json. Moving to `.harness/` eliminates this entirely.
 
 ### 2. Reduce optimizer overhead (4 min/experiment → <1 min)
 

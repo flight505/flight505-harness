@@ -85,14 +85,14 @@ defaults:
 Assemble the full workflow.yaml and write it:
 
 ```bash
-mkdir -p .claude/harness
+mkdir -p .harness
 ```
 
-Write the file to `.claude/harness/workflow.yaml`.
+Write the file to `.harness/workflow.yaml`.
 
 Show the user the complete workflow and explain:
 - How to run: `/conductor:run`
-- How to monitor: check `.claude/harness/` state files or the dashboard
+- How to monitor: check `.harness/` state files or the dashboard
 - How to resume: just re-run `/conductor:run` — it picks up where it left off
 
 ## Example Output

@@ -50,7 +50,7 @@ export interface WorkflowSummary {
   workflow_path: string | null;
 }
 
-const DEFAULT_HARNESS_DIR = join(process.cwd(), "..", ".claude", "harness");
+const DEFAULT_HARNESS_DIR = join(process.cwd(), "..", ".harness");
 
 export function getHarnessDir(): string {
   const envDir = process.env.HARNESS_STATE_DIR;

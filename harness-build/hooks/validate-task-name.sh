@@ -13,12 +13,12 @@ if [ -z "$TASK_SUBJECT" ]; then
 fi
 
 # Only enforce naming when harness-build is active
-if [ ! -d ".claude/harness" ]; then
+if [ ! -d ".harness" ]; then
   exit 0
 fi
 
 # Check for active build state
-if ! ls .claude/harness/build-*.json >/dev/null 2>&1; then
+if ! ls .harness/build-*.json >/dev/null 2>&1; then
   exit 0
 fi
 

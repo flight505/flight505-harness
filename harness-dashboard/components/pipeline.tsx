@@ -45,7 +45,7 @@ export function Pipeline() {
           No harness state found. Run a workflow first:
         </p>
         <code className="mt-2 block font-mono text-xs text-muted-foreground">
-          /conductor:run .claude/harness/workflow.yaml
+          /conductor:run .harness/workflow.yaml
         </code>
       </div>
     );

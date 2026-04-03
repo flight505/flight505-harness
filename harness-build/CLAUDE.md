@@ -18,7 +18,7 @@ harness-build is purely agent-driven. The conductor creates tasks and spawns tea
 
 ## State Output
 
-Writes to `.claude/harness/build-{run_id}.json` following `schema/state-v1.schema.json`.
+Writes to `.harness/build-{run_id}.json` following `schema/state-v1.schema.json`.
 
 Output includes: branch, stories completed/total, commits, files changed, review verdicts.
 

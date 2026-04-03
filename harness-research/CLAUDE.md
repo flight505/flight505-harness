@@ -12,7 +12,7 @@ Headless literature search and synthesis. Absorbs search and analysis from ai-fr
 
 ## State Output
 
-Writes to `.claude/harness/research-{run_id}.json` following `schema/state-v1.schema.json`.
+Writes to `.harness/research-{run_id}.json` following `schema/state-v1.schema.json`.
 
 Output includes: query, findings, papers, recommendations.
 

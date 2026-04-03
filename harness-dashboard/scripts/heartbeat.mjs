@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
 
-const HARNESS_DIR = process.argv[2] || ".claude/harness";
+const HARNESS_DIR = process.argv[2] || ".harness";
 const INTERVAL_MS = 1500;
 
 if (!existsSync(HARNESS_DIR)) {

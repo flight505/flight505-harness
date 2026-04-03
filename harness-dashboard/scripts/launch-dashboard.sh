@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-HARNESS_STATE_DIR="${1:-$(pwd)/.claude/harness}"
+HARNESS_STATE_DIR="${1:-$(pwd)/.harness}"
 DASHBOARD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_FILE="/tmp/harness-dashboard.log"
 PID_FILE="/tmp/harness-dashboard.pid"

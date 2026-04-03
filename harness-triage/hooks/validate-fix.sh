@@ -5,7 +5,7 @@
 # Exit 2: block completion
 set -e
 
-HARNESS_DIR=".claude/harness"
+HARNESS_DIR=".harness"
 
 # Find the most recent triage state file
 LATEST_STATE=$(ls -t "${HARNESS_DIR}"/triage-*.json 2>/dev/null | head -1 || echo "")

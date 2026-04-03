@@ -28,5 +28,8 @@ node_modules/
 .env*.local
 
 # Harness runtime state (generated, not committed)
-# Users may want to commit workflow.yaml but not state files
-# .claude/harness/*.json is runtime state — don't commit
+# .harness/*.json is runtime state — don't commit
+# workflow.yaml IS committed (it's the input definition)
+.harness/
+# But keep example state files
+!examples/.harness/

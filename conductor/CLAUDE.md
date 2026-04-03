@@ -4,7 +4,7 @@ Workflow orchestrator for flight505-harness. Reads workflow.yaml, sequences phas
 
 ## Command
 
-`/conductor:run [path]` — execute a workflow. Default path: `.claude/harness/workflow.yaml`
+`/conductor:run [path]` — execute a workflow. Default path: `.harness/workflow.yaml`
 
 ## Skill
 
@@ -23,8 +23,8 @@ Workflow orchestrator for flight505-harness. Reads workflow.yaml, sequences phas
 
 ## State Management
 
-Conductor state: `.claude/harness/conductor-{workflow_name}.json`
-Phase states: `.claude/harness/{plugin}-{run_id}.json` (written by plugin agents)
+Conductor state: `.harness/conductor-{workflow_name}.json`
+Phase states: `.harness/{plugin}-{run_id}.json` (written by plugin agents)
 
 ### Resume Protocol
 
